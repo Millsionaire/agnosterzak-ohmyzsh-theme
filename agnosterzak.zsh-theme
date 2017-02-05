@@ -114,12 +114,12 @@ prompt_battery() {
     }
 
     function battery_time_remaining() {
-       #if [[ $(acpi 2&>/dev/null | grep -c '^Battery.*Discharging') -gt 0 ]] ; then
-        # echo $(acpi | cut -f3 -d ',')
-       #fi
-       if [[ ! $(battery_is_charging) ]] ; then
-           echo pmset -g batt | egrep "([0-9]+\%).*" -o --colour=auto | cut -f3 -d';'
-       fi    
+      #if [[ $(acpi 2&>/dev/null | grep -c '^Battery.*Discharging') -gt 0 ]] ; then
+      # echo $(acpi | cut -f3 -d ',')
+      #fi
+      if [[ ! $(battery_is_charging) ]] ; then
+          echo pmset -g batt | egrep "([0-9]+\%).*" -o --colour=auto | cut -f3 -d';'
+      fi
     }
 
     b=$(battery_pct_remaining)
