@@ -89,16 +89,20 @@ prompt_context() {
 prompt_battery() {
   HEART='♥ '
 
-  if [[ $(uname) == "Linux"  ]] ; then
+  #if [[ $(uname) == "Linux"  ]] ; then
 
     function battery_is_charging() {
-      ! [[ $(acpi 2&>/dev/null | grep -c '^Battery.*Discharging') -gt 0 ]]
+      #! [[ $(acpi 2&>/dev/null | grep -c '^Battery.*Discharging') -gt 0 ]]
+        battStatus=$(pmset -g batt | egrep "([0-9]+\%).*" -o --colour=auto | cut -f2 -d';')
+        ! [[ $battStatus == 'discharging' ]]
+        return
     }
 
     function battery_pct() {
-      if (( $+commands[acpi] )) ; then
-        echo "$(acpi | cut -f2 -d ',' | tr -cd '[:digit:]')"
-      fi
+      #if (( $+commands[acpi] )) ; then
+        #echo "$(acpi | cut -f2 -d ',' | tr -cd '[:digit:]')"
+      #fi
+        echo $(pmset -g batt | egrep "([0-9]+\%).*" -o --colour=auto | cut -f1 -d';')
     }
 
     function battery_pct_remaining() {
@@ -110,24 +114,38 @@ prompt_battery() {
     }
 
     function battery_time_remaining() {
-      if [[ $(acpi 2&>/dev/null | grep -c '^Battery.*Discharging') -gt 0 ]] ; then
-        echo $(acpi | cut -f3 -d ',')
-      fi
+       #if [[ $(acpi 2&>/dev/null | grep -c '^Battery.*Discharging') -gt 0 ]] ; then
+        # echo $(acpi | cut -f3 -d ',')
+       #fi
+       if [[ ! $(battery_is_charging) ]] ; then
+           echo pmset -g batt | egrep "([0-9]+\%).*" -o --colour=auto | cut -f3 -d';'
+       fi    
     }
 
     b=$(battery_pct_remaining)
-    if [[ $(acpi 2&>/dev/null | grep -c '^Battery.*Discharging') -gt 0 ]] ; then
-      if [ $b -gt 40 ] ; then
-        prompt_segment green white
-      elif [ $b -gt 20 ] ; then
-        prompt_segment yellow white
-      else
-        prompt_segment red white
-      fi
-      echo -n "$fg_bold[white]$HEART$(battery_pct_remaining)%%$fg_no_bold[white]"
+        #if [[ $(acpi 2&>/dev/null | grep -c '^Battery.*Discharging') -gt 0 ]] ; then
+        # if [ $b -gt 40 ] ; then
+        #  prompt_segment green white
+        # elif [ $b -gt 20 ] ; then
+        #  prompt_segment yellow white
+        # else
+        #  prompt_segment red white
+        # fi
+        # echo -n "$fg_bold[white]$HEART$(battery_pct_remaining)%%$fg_no_bold[white]"
+        #fi
+    if [[ ! $(battery_is_charging) ]] ; then
+        if [ ${b%\%} -gt 40 ] ; then
+            prompt_segment green white
+        elif [ ${b%\%} -gt 20 ] ; then
+            prompt_segment yellow whitey
+        else
+            prompt_segment red white
+        fi
+        #echo -n "$fg_bold[white]$HEART$(battery_pct_remaining)%%$fg_no_bold[white]"
+        echo -n "$fg_bold[white]$HEART$(battery_pct_remaining)%$fg_no_bold[white]"
     fi
 
-  fi
+  #fi
 }
 
 # Git: branch/detached head, dirty status
